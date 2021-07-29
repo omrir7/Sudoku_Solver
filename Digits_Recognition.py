@@ -5,7 +5,38 @@ import imutils
 import cv2 as cv
 from Defeinitions import *
 import numpy as np
+from Features_Extraction import *
 
+def gen_roi_of_digit(digit_img):
+	digit_img = cv.resize(digit_img, (500, 500))
+	gray = cv.cvtColor(digit_img, cv.COLOR_BGR2GRAY)
+	# gray = digit_img
+	threshold_value, thresh = cv.threshold(gray, 155, 255, cv.THRESH_BINARY)
+	# kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (1, 5))
+	# thresh = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
+	#cv.imshow('thresh', thresh)
+	#cv.waitKey(1000)
+	thresh = cv.bitwise_not(thresh)
+	cnts = cv.findContours(thresh.copy(), cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+	cnts = imutils.grab_contours(cnts)
+	if (len(cnts) > 0):
+		digitCnts = contours.sort_contours(cnts, method="left-to-right")[0]
+		max = 0
+		maxcont = cnts[0]
+		for c in digitCnts:
+			# compute the bounding box of the contour
+			(x, y, w, h) = cv.boundingRect(c)
+			# if the contour is sufficiently large, it must be a digit
+			if cv.contourArea(c) > 25000 and cv.contourArea(c) < 50000:
+				maxcont = c
+		(x, y, w, h) = cv.boundingRect(maxcont)
+	else:
+		(x, y, w, h) = (0, 0, 500, 500)
+	# print(cv.contourArea(maxcont))
+	roi = thresh[y:y + h, x:x + w]
+	#cv.imshow('roi',roi)
+	#cv.waitKey(500)
+	return roi
 
 def minMSE (arr):
 	mseArr = np.zeros((10))
@@ -14,48 +45,10 @@ def minMSE (arr):
 	return np.argmin(mseArr)
 
 def recognize_digit(digit_img):
-	digit_img=cv.resize(digit_img,(500,500))
-	gray = cv.cvtColor(digit_img,cv.COLOR_BGR2GRAY)
-	#gray = digit_img
-	threshold_value,thresh = cv.threshold(gray,155,255,cv.THRESH_BINARY)
-	#kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (1, 5))
-	#thresh = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
-	cv.imshow('thresh',thresh)
-	cv.waitKey(500)
-	cnts = cv.findContours(thresh.copy(), cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE)
-	cnts = imutils.grab_contours(cnts)
-	digitCnts = contours.sort_contours(cnts,method="left-to-right")[0]
-	max=0
-	maxcont = cnts[0]
-	for c in digitCnts:
-		# compute the bounding box of the contour
-		(x, y, w, h) = cv.boundingRect(c)
-		# if the contour is sufficiently large, it must be a digit
-		if w*h>max:
-			maxcont = c
-	c=maxcont
-	(x, y, w, h) = cv.boundingRect(c)
-	roi = thresh[y:y + h, x:x + w]
-
-	roi = cv.bitwise_not(roi)
-	cv.imshow('roi',roi)
-	cv.waitKey(500)
-	(roiH, roiW) = roi.shape
-	#features:
-	#1.total on pixels
-	#2.cut in the midle x and count how many on lines
-	#3.cut in the midle y and count how many on lines
-
-	#1
-	total_on = cv.countNonZero(roi)/365
-	#2
-	middle_x_line = roi[0:roiW-1,roiH//2]
-	total_middle_x = cv.countNonZero(middle_x_line)
-	#3
-	middle_y_line = roi[roiW//2,0:roiH-1]
-	total_middle_y = cv.countNonZero(middle_y_line)
-
-	digit = minMSE([total_on,total_middle_x,total_middle_y])
+	roi = gen_roi_of_digit(digit_img)
+	#roi = cv.bitwise_not(roi)
+	features = extract(roi)
+	digit = minMSE(features)
 	return digit
 
 

@@ -11,7 +11,8 @@ class Sudoku_Board():
 			for row in range(0,Sudoku_Size):
 				board_matrix[row][col] = Digits_Recognition.recognize_digit(digits[i])
 				i+=1
+		print(DIGITS_LOOKUP)
 		for row in range(0,Sudoku_Size):
 			print(str(board_matrix[row]))
 
-sod1 = Sudoku_Board("Soduko_Images/2.png")
+sod1 = Sudoku_Board("Soduko_Images/4.png")

@@ -14,4 +14,4 @@ class Sudoku_Board():
 		for row in range(0,Sudoku_Size):
 			print(str(board_matrix[row]))
 
-sod1 = Sudoku_Board("Soduko_Images/4.png")
+sod1 = Sudoku_Board("Soduko_Images/2.png")

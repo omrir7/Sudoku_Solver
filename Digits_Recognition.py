@@ -20,7 +20,8 @@ def recognize_digit(digit_img):
 	threshold_value,thresh = cv.threshold(gray,155,255,cv.THRESH_BINARY)
 	#kernel = cv.getStructuringElement(cv.MORPH_ELLIPSE, (1, 5))
 	#thresh = cv.morphologyEx(thresh, cv.MORPH_OPEN, kernel)
-	#cv.imshow('thresh',thresh)
+	cv.imshow('thresh',thresh)
+	cv.waitKey(500)
 	cnts = cv.findContours(thresh.copy(), cv.RETR_LIST,cv.CHAIN_APPROX_SIMPLE)
 	cnts = imutils.grab_contours(cnts)
 	digitCnts = contours.sort_contours(cnts,method="left-to-right")[0]
@@ -37,6 +38,8 @@ def recognize_digit(digit_img):
 	roi = thresh[y:y + h, x:x + w]
 
 	roi = cv.bitwise_not(roi)
+	cv.imshow('roi',roi)
+	cv.waitKey(500)
 	(roiH, roiW) = roi.shape
 	#features:
 	#1.total on pixels

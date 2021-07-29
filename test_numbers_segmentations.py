@@ -2,6 +2,9 @@ import imutils
 import cv2 as cv
 from imutils import contours
 from Defeinitions import *
+import pandas as pd
+import numpy as np
+
 
 img = [0] * 9
 features_values = np.zeros((10,FEATURES_NUMBER))
@@ -51,5 +54,8 @@ for k in range(1,10):
 features_values[0,0] = 0
 features_values[0,1] = 0
 features_values[0,2] = 0
-for i in range (0,10):
-	print(str(i)+": "+str(features_values[i]))
+
+dataframe = pd.DataFrame(features_values)
+dataframe.to_csv(r"C:/Users/omrir/PycharmProjects/SodukoSolver/Single_dig_Features.csv")
+#for i in range (0,10):
+#	print(str(i)+": "+str(features_values[i]))
